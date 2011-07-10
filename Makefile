@@ -35,6 +35,11 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -f source/img/tikz/*.png
+	-rm -f source/img/tikz/*.pdf
+	-rm -r source/img/tikz/.*.tex
+	-rm -f source/*.pyc
+	-rm -f extensions/*.pyc
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
