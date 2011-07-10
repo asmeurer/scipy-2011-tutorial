@@ -2595,6 +2595,55 @@ Symbolic Integration of Elementary Transcendental Functions with the Risch Algor
 Theoretical background
 ----------------------
 
+As we learned in calculus, differentiation is a relatively easy task.
+Every elementary function has an elementary derivative, and it can be
+computed by an application of some simple rules, such as the sum and
+product rules, the chain rule, and the power rule.
+
+Integration, that is, the inverse operation of differentiation, is a
+different story. There are several problems inherent in computing
+antiderivatives.  First, not all elementary functions have elementary
+antiderivatives.  The classical example is the integral:
+
+.. math::
+
+    \int{ e^{-x^2}\,dx}.
+
+This function, which up to a constant factor is the error function, is
+not elementary, that is, it cannot be expressed by a finite application
+of sums, products, powers, and compositions of polynomials,
+exponentials, logarithms, and trigonometric functions.
+
+But the real problem with integration is that the algorithms for
+computing antiderivatives are much more complicated than those for
+computing derivatives.  There are analogues of the product and chain
+rules for differentiation (integration by parts and `u`-substitution,
+respectively), but these cannot be applied nearly as generally as the
+rules for differentiation.  Indeed, if we wish to have an algorithm that
+can compute elementary antiderivatives in full generality, we cannot
+even use the sum rule.  For example, `\int{ x^x\,dx}` and `\int{
+x^x\log{x}\,dx}` are both nonelementary functions, but the sum, `\int{
+x^x + x^x\log{x}\,dx}` *is* an elementary function, as it's equal to
+`x^x`.
+
+Fortunately, there does exist a complete algorithm for computing
+elementary antiderivatives, called the Risch algorithm.  The algorithm
+is complete, which means that given any elementary function, the
+algorithm will either compute an elementary antiderivative if it exists,
+or prove that no elementary antiderivative does exist.  Unfortunately,
+the algorithm is very complicated, so much so that no computer algebra
+system to date have a truly complete implementation.  This is mainly due
+to the difficulty of the algebraic part of the algorithm.
+
+The transcendental part Risch algorithm deals with integrating
+transcendental functions, such as function containing `e^x`, `\log{x}`,
+and trigonometric functions.  It does not deal with algebraic functions,
+such as `\sqrt{x + 1}` and `\left( \log{x^2 + 1} \right)^{1/3}`.  The
+transcendental part of the algorithm, while still relatively
+complicated, is the easiest part of the algorithm to implement, and is
+described completely in Manuel Bronstein's book, *Symbolic Integration
+I: Transcendental Functions*.
+
 Getting the branch
 ------------------
 
