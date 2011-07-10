@@ -2199,3 +2199,44 @@ Tasks
    if the resulting bases are still useful in the context they were
    used. If they are, compare the time to compute the bases in the
    different orderings.
+
+Symbolic Integration of Elementary Transcendental Functions with the Risch Algorithm
+====================================================================================
+
+Theoretical background
+----------------------
+
+Getting the branch
+------------------
+
+In this section, we look at some of Aaron Meurer's development work with
+the Risch algorithm for symbolic integration.  Aaron worked on this for
+his 2010 Google Summer of Code project, and has continued working on it
+since.
+
+Unfortunately, this work has not yet been merged with the main SymPy
+development branch, so we will have to obtain a development branch.
+There are two options for doing this.  If you have git installed on your
+machine, it is recommended to get the branch using that.  The following
+set of commands will clone the official SymPy git repository, add
+Aaron's dev work, and check it out::
+
+    # cd to the directory where you want sympy
+    git clone git://github.com/sympy/sympy.git
+    cd sympy
+    git remote add asmeurer git://github.com/asmeurer/sympy.git
+    git fetch asmeurer
+    git checkout asmeurer/integration3
+
+Note that if you want to later use this git repository to contribute to
+SymPy, we recommend that you follow our `development workflow guide
+<https://github.com/sympy/sympy/wiki/development-workflow>`_.
+
+If you don't have git installed, you can download a `tarball
+<https://github.com/asmeurer/sympy/tarball/integration3>`_ of the latest
+version of Aaron's integration3 branch.
+
+Playing with :func:`risch_integrate`
+------------------------------------
+
+Once you have Aaron's integration3 development branch, start up ``isympy``.
