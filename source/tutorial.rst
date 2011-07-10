@@ -2623,8 +2623,8 @@ rules for differentiation.  Indeed, if we wish to have an algorithm that
 can compute elementary antiderivatives in full generality, we cannot
 even use the sum rule.  For example, `\int{ x^x\,dx}` and `\int{
 x^x\log{x}\,dx}` are both nonelementary functions, but the sum, `\int{
-x^x + x^x\log{x}\,dx}` *is* an elementary function, as it's equal to
-`x^x`.
+\left(x^x + x^x\log{x}\right)\,dx}` *is* an elementary function, as it's
+equal to `x^x`.
 
 Fortunately, there does exist a complete algorithm for computing
 elementary antiderivatives, called the Risch algorithm.  The algorithm
@@ -2648,9 +2648,9 @@ Getting the branch
 ------------------
 
 In this section, we look at some of Aaron Meurer's development work with
-the Risch algorithm for symbolic integration.  Aaron worked on this for
-his 2010 Google Summer of Code project, and has continued working on it
-since.
+the transcendental Risch algorithm for symbolic integration.  Aaron
+worked on this for his 2010 Google Summer of Code project, and has
+continued working on it since.
 
 Unfortunately, this work has not yet been merged with the main SymPy
 development branch, so we will have to obtain a development branch.
