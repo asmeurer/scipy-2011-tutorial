@@ -10,60 +10,99 @@ It aims to become a full-featured computer algebra system (CAS) while keeping th
 code as simple as possible in order to be comprehensible and easily extensible.
 SymPy is written entirely in Python and does not require any external libraries.
 
-In this tutorial we will introduce attendees to SymPy. We will start by showing
-how to install and configure this Python module. Then we will proceed to the
-basics of constructing and manipulating mathematical expressions in SymPy. We
-will also discuss the most common issues and differences from other computer
-algebra systems, and how to deal with them. In the last part of this tutorial
-we will show how to solve simple, yet illustrative, mathematical problems with
-SymPy.
+This tutorial gives an overview and introduction to SymPy. We will start by
+showing how to install and configure SymPy. Then we will proceed to the basics
+of constructing and manipulating mathematical expressions in SymPy. We will
+also discuss the most common problems with SymPy and differences between it
+and mathematical systems, and how to deal with them. In the last part of this
+tutorial we will show how to solve simple, yet illustrative, mathematical
+problems with SymPy.
 
-This knowledge should be enough for attendees to start using SymPy for solving
-mathematical problems and hacking SymPy's internals (though hacking core modules
-may require additional expertise).
+This knowledge should be enough to start using SymPy in daily work and hacking
+SymPy's internals (though hacking core modules may require additional expertise).
 
 Installing, configuring and running SymPy
 =========================================
+
+The easiest way to get SymPy is to visit `this <http://code.google.com/p/sympy>`_
+page and download the latest tarball from *Featured Downloads* section,
+or use the following direct link::
+
+    $ wget http://sympy.googlecode.com/files/sympy-0.7.0.tar.gz
+    $ tar -xz -C sympy --strip-components 1 -f sympy-0.7.0.tar.gz
+
+You will also find an installer for Windows there. An alternative way is to
+clone SymPy's `git <http://www.git-scm.org>`_ repository from `GitHub <http://github.com/sympy/sympy>`_::
+
+    $ git clone git://github.com/sympy/sympy.git
+
+To use it, issue::
+
+    $ cd sympy
+    $ python
+    Python 2.6.6 (r266:84292, Dec 28 2010, 00:22:44)
+    [GCC 4.5.1] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from sympy import *
+    >>> var('x')
+    x
+    >>> diff(sin(x), x)
+    cos(x)
+
+If you want SymPy to be available globally, you can install it using
+``./setup.py install``. SymPy is available in major Linux distributions,
+so you can install it also using package manager of your distribution
+(for example in Ubuntu install ``python-sympy`` and in Gentoo install
+``dev-python/sympy``).
+
+By default, SymPy doesn't have any dependencies besides Python. The following
+version of Python are supported: 2.4, 2.5, 2.6, 2.7. Python 3.x is not supported
+yet, although there is undergoing work to make SymPy compatible with it. Also
+release 0.7.0 of SymPy is the last one that supports Python 2.4. SymPy should
+also work smoothly under Jython (IronPython and PyPy have problems with running
+SymPy).
+
+Certain features of SymPy may require additional dependencies. For example
+:mod:`sympy.polys` module can take advantage of gmpy library for coefficient
+arithmetics. However, if gmpy is not available, this module falls back to
+pure Python implementation, so ``import sympy`` will work correctly without
+gmpy being installed. Other dependencies include IPython, Matplotlib, NumPy,
+SciPy, Cython, Pyglet, LaTeX distribution and more.
 
 SymPy in Python/IPython
 -----------------------
 
 Sessions in standard Python's interpreter and IPython look very similar,
-for example:
+just the banner and prompt look differently, for example::
 
-.. sourcecode:: ipython
-
-    $ ipython
-
-    In [1]: import sympy
-
-    In [2]: x = sympy.Symbol('x')
-
-    In [3]: sympy.integrate(3*x**2)
-    Out[3]: x**3
-
-    In [4]: sympy.init_printing()
-
-    In [5]: sympy.integrate(3*x**2)
-    Out[5]:
+    $ python
+    Python 2.6.6 (r266:84292, Dec 28 2010, 00:22:44)
+    [GCC 4.5.1] on linux2
+    >>> import sympy
+    >>> x = sympy.Symbol('x')
+    >>> sympy.integrate(3*x**2)
+    x**3
+    >>> sympy.init_printing()
+    >>> sympy.integrate(3*x**2)
      3
     x
 
 Interactive SymPy (``isympy``)
 ------------------------------
 
-For users' convenience, SymPy's distribution includes a simple shell script called
-isympy that uses either IPython (if available) or standard Python's interpreter
-with readline support (see ``bin/isympy``). On startup isympy enables new
-division, imports everything from :mod:`sympy`, sets up a few commonly used
-symbols and undefined functions, and initializes the pretty printer.
+For users' convenience, SymPy's distribution includes a simple script called
+isympy (see ``bin/isympy``). isympy uses either IPython (if available) or
+standard Python's interpreter with readline support. On startup isympy sets
+up the environment to make interaction with SymPy more pleasant. It enables
+new division, imports everything from :mod:`sympy`, injects a few commonly
+used symbols into the global namespace, and initializes the pretty printer.
 
 Here is an example session with isympy:
 
 .. sourcecode:: ipython
 
     sympy$ bin/isympy
-    IPython console for SymPy 0.7.0 (Python 2.6.6-64-bit) (ground types: gmpy)
+    IPython console for SymPy 0.7.0 (Python 2.6.6) (ground types: gmpy)
 
     These commands were executed:
     >>> from __future__ import division
@@ -92,33 +131,107 @@ There are a variety of command-line options supported by isympy:
 ``-h``, ``--help``
     show help
 ``-c CONSOLE``, ``--console=CONSOLE``
-    select type of interactive session: ``ipython``, ``python``. Default is ``ipython`` if IPython is installed, otherwise, ``python``.
+    select type of interactive session: ``ipython``, ``python``. Default is
+    ``ipython`` if IPython is installed, otherwise, ``python``.
 ``-p PRETTY``, ``--pretty=PRETTY``
-    setup pretty printing: ``unicode``, ``ascii`` or ``no``. Default is ``unicode`` if the terminal supports it, otherwise, ``ascii``.
+    setup pretty printing: ``unicode``, ``ascii`` or ``no``. Default is ``unicode``
+    if the terminal supports it, otherwise, ``ascii``.
 ``-t TYPES``, ``--types=TYPES``
-    setup ground types: ``gmpy``, ``python`` or ``sympy``. Default is ``gmpy`` if it's installed, otherwise ``python``.
+    setup ground types: ``gmpy``, ``python`` or ``sympy``. Default is ``gmpy`` if
+    it's installed, otherwise ``python``.
 ``-o ORDER``, ``--order=ORDER``
-    setup ordering of terms: ``[rev-]lex``, ``[rev-]grlex``, ``[rev-]grevlex`` or ``old``. Default is ``lex``.
+    setup ordering of terms: ``[rev-]lex``, ``[rev-]grlex``, ``[rev-]grevlex`` or
+    ``old``. Default is ``lex``.
 ``-q``, ``--quiet``
     print only version information at startup
 ``-C``, ``--no-cache``
     disable caching
 
 Environment variables
------------------------
+---------------------
 
 ``SYMPY_USE_CACHE``
     By default SymPy caches all computations. If this is undesirable, for
     example due to limited amount of memory, set this variable to ``no``
     to disable caching. Note that some operations will run much slower with
-    the cache off.
+    the cache off. Setting this variable to ``no`` is equivalent to running
+    isympy with ``-C`` option.
 ``SYMPY_GROUND_TYPES``
     SymPy is a pure Python library, however to improve the speed of computations
-    it can take advantage of third-party compiled libraries (for now only gmpy).
-    Ground types are set automatically, so if gmpy is not available, it simply
-    won't be used. However, if gmpy is available but for some reason it is
-    undesirable to use it, set this variable to ``python``, to disable usage
-    of gmpy.
+    it can take advantage of gmpy library to speedup coefficient arithmetics
+    (also known as ground domain arithmetics). Ground types are set automatically,
+    so if gmpy is not available, it simply won't be used. However, if gmpy is
+    available but for some reason it is undesirable to use it, set this variable
+    to ``python``, to disable usage of gmpy. Use ``-t`` or ``--type`` option to
+    achieve the same in isympy.
+
+Running the test suite
+----------------------
+
+To verify that SymPy works properly on your computer, you can run SymPy's
+test suite. This is done either with ``bin/test`` command or :func:`test`
+in an interactive session. For example, to test :mod:`sympy.core` issue::
+
+    $ bin/test sympy/core
+    ============================= test process starts ==============================
+    executable:   /usr/bin/python2.6  (2.6.6-final-0)
+    ground types: gmpy
+
+    sympy/core/tests/test_arit.py[48] ...f..........................................
+    ..                                                                          [OK]
+    sympy/core/tests/test_assumptions.py[28] ............................       [OK]
+    sympy/core/tests/test_basic.py[10] ..........                               [OK]
+    sympy/core/tests/test_cache.py[1] .                                         [OK]
+    sympy/core/tests/test_complex.py[13] .............                          [OK]
+    sympy/core/tests/test_containers.py[5] .....                                [OK]
+    sympy/core/tests/test_count_ops.py[2] ..                                    [OK]
+    sympy/core/tests/test_diff.py[6] ......                                     [OK]
+    sympy/core/tests/test_equal.py[6] ......                                    [OK]
+    sympy/core/tests/test_eval.py[8] .....f..                                   [OK]
+    sympy/core/tests/test_eval_power.py[13] .............                       [OK]
+    sympy/core/tests/test_evalf.py[24] ........................                 [OK]
+    sympy/core/tests/test_expand.py[6] ......                                   [OK]
+    sympy/core/tests/test_expr.py[59] ..............................................
+    .............                                                               [OK]
+    sympy/core/tests/test_exprtools.py[4] ....                                  [OK]
+    sympy/core/tests/test_facts.py[11] ...........                              [OK]
+    sympy/core/tests/test_functions.py[27] .....fff...................          [OK]
+    sympy/core/tests/test_logic.py[11] ...........                              [OK]
+    sympy/core/tests/test_match.py[26] ...f......................               [OK]
+    sympy/core/tests/test_numbers.py[46] ...........................................
+    ...                                                                         [OK]
+    sympy/core/tests/test_operations.py[4] ....                                 [OK]
+    sympy/core/tests/test_priority.py[5] .....                                  [OK]
+    sympy/core/tests/test_relational.py[7] .......                              [OK]
+    sympy/core/tests/test_sets.py[18] ..................                        [OK]
+    sympy/core/tests/test_subs.py[30] ..............................            [OK]
+    sympy/core/tests/test_symbol.py[9] ....X....                                [OK]
+    sympy/core/tests/test_sympify.py[26] ...f......................             [OK]
+    sympy/core/tests/test_truediv.py[3] ...                                     [OK]
+    sympy/core/tests/test_var.py[5] .....                                       [OK]
+
+    ________________________________ xpassed tests _________________________________
+    sympy/core/tests/test_symbol.py:
+
+    tests finished: 453 passed, 7 expected to fail, 1 expected to fail but passed,
+    in 6.30 seconds
+
+This tells us that all standard tests in :mod:`sympy.core`'s  pass (dots).
+In case of failure, ``.`` would change to ``F`` and ``OK`` to ``FAIL``
+(additionally all failures would be colored in red and listed at the end of
+output from SymPy's test utility). Non-standard tests are those marked with
+``f`` and ``X`` characters. The former means that the test was supposed to
+fail and failed (XFAIL), whereas the later means that the test was supposed
+to fail but passed (XPASS).
+
+To run the whole test suite issue ``bin/test`` or :func:`test` without any
+arguments. Running the whole test suite takes more than ten minutes on
+Pentium-M 1.6 GHz and less than 5 minutes on Xeon 3.0 GHz (one core).
+
+There is another test utility in SymPy, ``bin/doctest``, which verifies
+examples in docstrings and documentation. If you are going to contribute
+to SymPy, make sure you run both ``bin/test`` and ``bin/doctest`` before
+submitting a `pull request <http://help.github.com/send-pull-requests>`_.
 
 SymPy in web browsers
 ---------------------
@@ -128,6 +241,192 @@ SymPy is available in the following web applications:
 * SymPy Live (http://live.sympy.org)
 * Sage Notebook (http://www.sagenb.org)
 * FEMhub Online Lab (http://lab.femhub.org)
+
+SymPy Live was developed specifically for SymPy. It is a simple web shell
+that looks similar to isympy under standard Python's interpreter. SymPy
+Live uses Google App Engine as computational backend.
+
+Basics of expressions in SymPy
+==============================
+
+SymPy is all about construction and manipulation of *expressions*. By the
+term expression we mean mathematical expressions represented in the Python
+language using SymPy's classes and objects. Expressions may consist of
+symbols, numbers, function applications (and many other) and operators
+binding them together (addiction, subtraction, multiplication, division,
+exponentiation).
+
+Suppose we want to construct an expression for `x + 1`::
+
+    >>> x = Symbol('x')
+
+    >>> x + 1
+    x + 1
+
+    >>> type(_)
+    <class 'sympy.core.add.Add'>
+
+Entering ``x + 1`` gave us an instance of :class:`Add` class. This expression
+consists of a symbol (``x``), a number (``1``) and addition operator, which
+is represented by the topmost class (:class:`Add`). This was the simplest way
+of entering an expression for `x + 1`. We could also enter::
+
+    >>> y = Symbol('y')
+
+    >>> x - y + 17 + y - 16 + sin(pi)
+    x + 1
+
+In this case SymPy automatically rewrote the input expression and gave its
+canonical form, which is ``x + 1`` once again.
+
+.. TODO
+
+The role of symbols
+-------------------
+
+The first thing we had to do before we could start constructing expressions
+was to define symbols.
+
+.. TODO
+
+Immutability of expressions
+---------------------------
+
+Expressions in SymPy are immutable and cannot be modified by an in-place
+operation. This means that a function will always return an object, and
+the original expression will not be modified. Consider the following
+code::
+
+    >>> var('x,y,a,b')
+    (x, y, a, b)
+
+    >>> original = 3*x + 4*y
+    >>> modified = original.subs({x: a, y: b})
+
+    >>> original
+    3*x + 4*y
+    >>> modified
+    3*a + 4*b
+
+The output shows that the :func:`subs` method gave a new expression with
+symbol ``x`` replaced with symbol ``a`` and symbol ``y`` replaced with
+symbol ``b``. The original expression wasn't modified. This behaviour
+applies to all classes that are subclasses of :class:`Basic`. An exception
+to immutability rule is :class:`Matrix`, which allows in-place modifications,
+but it is not a subclass of :class:`Basic`::
+
+    >>> Matrix.mro()
+    [<class 'sympy.matrices.matrices.Matrix'>, <type 'object'>]
+
+Comparing expressions with ``==``
+---------------------------------
+
+Consider the following two expressions::
+
+    >>> f = (x + 1)**2
+    >>> f
+           2
+    (x + y)
+
+    >>> g = x**2 + 2*x + 1
+    >>> g
+     2
+    x  + 2⋅x + 1
+
+We should remember from calculus 101 that those two expressions are
+equivalent, because we can use binomial theorem to expand ``f`` and
+we will get ``g``. However in SymPy::
+
+    >>> f == g
+    False
+
+This is correct result, because SymPy implements structural understanding
+of ``==`` operator, not semantic. So, for SymPy ``f`` and ``g`` are very
+different expressions.
+
+What to do if we have two variables and we want to know if their contents
+are equivalent, but not necessarily structurally equal? There is no simple
+answer to this question in general. In the particular case of ``f`` and
+``g``, it is sufficient to issue::
+
+    >>> expand(f) == expand(g)
+    True
+
+or, based on `f = g \equiv f - g = 0` equivalence::
+
+    >>> expand(f - g) == 0
+    True
+
+In case of more complicated expression, e.g. those involving elementary or
+special functions, this approach may be insufficient. For example::
+
+    >>> u = sin(x)**2 - 1
+    >>> v = cos(x)**2
+
+    >>> u == v
+    False
+    >>> expand(u - v) == 0
+    False
+
+In this case we have to use more advanced term rewriting function::
+
+    >>> simplify(u - v) == 0
+    True
+
+The meaning of expressions
+--------------------------
+
+Expressions don't have any meaning assigned to them by default. Thus `x + 1`
+is simply an expression, not a function or a univariate polynomial. Meaning
+is assigned when we use expressions in a context, e.g.::
+
+    >>> div(x**2 - y, x - y)
+    ⎛        2    ⎞
+    ⎝x + y, y  - y⎠
+
+In this case, ``x**2 - y`` and ``x - y`` where treated as multivariate
+polynomials in variables ``x`` and ``y`` (in this order). We could change
+this understanding and ask explicitly for polynomials in variables ``y``
+and ``x``. This makes :func:`div` return a different result::
+
+    >>> div(x**2 - y, x - y, y, x)
+    ⎛    2    ⎞
+    ⎝1, x  - x⎠
+
+Quite often SymPy is capable of deriving the most useful understanding of
+expressions in a given context. However, there are situations when expressions
+simply don't carry enough information to make SymPy perform computations without
+telling it explicitly what to do::
+
+    >>> roots(x**2 - y)
+    Traceback (most recent call last):
+    ...
+    PolynomialError: multivariate polynomials are not supported
+
+Here we have to tell :func:`roots` in which variable roots should be computed::
+
+    >>> roots(x**2 - y, x)
+    ⎧   ⎽⎽⎽       ⎽⎽⎽   ⎫
+    ⎨-╲╱ y : 1, ╲╱ y : 1⎬
+    ⎩                   ⎭
+
+Of course the choice of ``y`` is also a valid one, assuming that this is what
+you really want.
+
+Turning strings into expressions
+--------------------------------
+
+:func:`sympify`, ``S``
+
+.. TODO
+
+Advanced manipulation of expressions
+====================================
+
+* manual and interactive traversal of subexpressions
+* search and replace in expressions
+* most common expression manipulation functions
+* transforming expressions between different forms
 
 Gotchas and pitfalls
 ====================
@@ -254,6 +553,25 @@ gives use :exc:`TypeError`. For users' convenience, :func:`sympify` converts
 
 People who what pure Python behaviour of :func:`sympify` can disable this
 automatic conversion by passing ``convert_xor=False`` to it.
+
+``=`` is not comparison operator
+--------------------------------
+
+The equals sign (``=``) is the assignment operator in Python, not equality
+operator. In other many mathematical systems, ``=`` is used for comparing
+values and/or for constructing equalities, but with SymPy you have to use
+``==`` for the former and ``Eq(x, y)`` for the later. Note that instances
+of :class:`Eq` class, in boolean context, collapse to ``==``::
+
+    >>> var('x,y')
+
+    >>> x == y
+    False
+
+    >>> Eq(x, y)
+    x = y
+    >>> bool(_)
+    False
 
 Why you shouldn't write ``10**-1000``
 -------------------------------------
@@ -433,7 +751,7 @@ and in interactive sessions:
 .. sourcecode:: ipython
 
     $ bin/isympy -q
-    IPython console for SymPy 0.7.0-git (Python 2.6.6-64-bit) (ground types: gmpy)
+    IPython console for SymPy 0.7.0 (Python 2.6.6) (ground types: gmpy)
 
     In [1]: f = (x-tan(x)) / tan(x)**2 + tan(x)
 
@@ -446,7 +764,7 @@ and in interactive sessions:
     Wall time: 0.25 s
 
     $ bin/isympy -q -C
-    IPython console for SymPy 0.7.0-git (Python 2.6.6-64-bit) (ground types: gmpy, cache: off)
+    IPython console for SymPy 0.7.0 (Python 2.6.6) (ground types: gmpy, cache: off)
 
     In [1]: f = (x-tan(x)) / tan(x)**2 + tan(x)
 
@@ -482,13 +800,13 @@ rather than actual computing times):
 .. sourcecode:: ipython
 
     $ bin/isympy -q
-    IPython console for SymPy 0.7.0-git (Python 2.6.6-64-bit) (ground types: gmpy)
+    IPython console for SymPy 0.7.0 (Python 2.6.6) (ground types: gmpy)
 
     In [1]: %timeit sin(2*pi);
     10000 loops, best of 3: 28.7 us per loop
 
     $ bin/isympy -q -C
-    IPython console for SymPy 0.7.0-git (Python 2.6.6-64-bit) (ground types: gmpy, cache: off)
+    IPython console for SymPy 0.7.0 (Python 2.6.6) (ground types: gmpy, cache: off)
 
     In [1]: %timeit sin(2*pi);
     100 loops, best of 3: 2.75 ms per loop
@@ -665,7 +983,7 @@ MathML printing
 Printing with Pyglet
 ~~~~~~~~~~~~~~~~~~~~
 
-Issue::
+This allows for printing expressions in a separate GUI window. Issue::
 
     >>> preview(x**2 + Integral(x**2, x) + 1/x)
 
@@ -697,69 +1015,140 @@ is to modify ``sys.displayhook``::
     >>> sys.displayhook = oldhook
 
 Alternatively one can use SymPy's function :func:`init_printing`. This works
-only for pretty printer, but is the fastest way to setup this kind of printer.
-
-Printing foreign objects
-------------------------
+only for pretty printer, but is the fastest way to setup this type of printer.
 
 Customizing built-in printers
 -----------------------------
+
+Suppose we dislike how certain classes of expressions are printed. One such
+issue may be pretty printing of polynomials (instances of :class:`Poly` class),
+in which case :class:`PrettyPrinter` simply doesn't have support for printing
+polynomials and falls back to :class:`StrPrinter`::
+
+    >>> Poly(x**2 + 1)
+    Poly(x**2 + 1, x, domain='ZZ')
+
+One way to add support for pretty printing polynomials is to extend pretty
+printer's class and implement ``_print_Poly`` method. We would choose this
+approach if we wanted this to be a permanent change in SymPy. We will choose
+a different way and subclass :class:`PrettyPrinter` and implement ``_print_Poly``
+in the new class.
+
+Let's call the new pretty printer :class:`PolyPrettyPrinter`. It's implementation
+looks like this:
+
+.. literalinclude:: python/pretty_poly.py
+
+Using :func:`pretty_poly` allows us to print polynomials in 2D and Unicode::
+
+    >>> pretty_poly(Poly(x**2 + 1))
+        ⎛ 2          ⎞
+    Poly⎝x  + 1, x, ℤ⎠
+
+We can use techniques from previous section to make this new pretty printer
+the default for all inputs.
 
 Implementing printers from scratch
 ----------------------------------
 
 SymPy implements a variety of printers and often extending those existent
-may be sufficient. However, we can also add completely new ones. Suppose
-we would like to translate SymPy's expressions to Mathematica syntax.
-This can be done by creating a new printer, which boils down to adding
-a new class, let's say :class:`MathematicaPrinter`, which derives from
-:class:`Printer` and implements ``_print_*`` methods for all kinds of
-expressions we want to support. In this particular example we would like
-to be able to translate numbers, symbols and functions to Mathematica
-syntax.
+may be sufficient, to optimize them for certain problem domain or specific
+mathematical notation. However, we can also add completely new ones, for
+example to allow printing SymPy's expression with other symbolic mathematics
+systems' syntax.
 
-A prototype implementation is a follows::
+Suppose we would like to translate SymPy's expressions to Mathematica syntax.
+As of version 0.7.0, SymPy doesn't implement such a printer, so we get do it
+right now. Adding a new printer basically boils down to adding a new class,
+let's say :class:`MathematicaPrinter`, which derives from :class:`Printer`
+and implements ``_print_*`` methods for all kinds of expressions we want to
+support. In this particular example we would like to be able to translate:
 
-    from sympy.printing.printer import Printer
+* numbers
+* symbols
+* functions
+* exponentiation
 
-    class MathematicaPrinter(Printer):
-        """Print SymPy's expressions using Mathematica syntax. """
-        printmethod = "_mathematica"
+and compositions of all of those. A prototype implementation is as follows:
 
-        _default_settings = {
-            "order": None,
-        }
+.. literalinclude:: python/mathematica.py
 
-        _translation_table = {
-            'asin': 'ArcSin',
-        }
+Before we explain this code, let's see what it can do::
 
-        def emptyPrinter(self, expr):
-            return str(expr)
+    >>> mathematica(S(1)/2)
+    1/2
+    >>> mathematica(x)
+    x
 
-        def _print_Function(self, expr):
-            name = expr.func.__name__
-            args = ", ".join([ self._print(arg) for arg in expr.args ])
+    >>> mathematica(x**2)
+    x^2
 
-            if expr.func.nargs is not None:
-                try:
-                    name = self._translation_table[name]
-                except KeyError:
-                    name = name.capitalize()
+    >>> mathematica(f(x))
+    f[x]
+    >>> mathematica(sin(x))
+    Sin[x]
+    >>> mathematica(asin(x))
+    ArcSin[x]
 
-            return "%s[%s]" % (name, args)
+    >>> mathematica(sin(x**2))
+    Sin[x^2]
+    >>> mathematica(sin(x**(S(1)/2)))
+    Sin[x^(1/2)]
 
-    def mathematica(expr, **settings):
-        """Transform an expression as a string with Mathematica syntax. """
-        p = MathematicaPrinter(settings)
-        s = p.doprint(expr)
+However, as we didn't include support for :class:`Add`, this doesn't work::
 
-        return s
+    >>> mathematica(x**2 + 1)
+    x**2 + 1
+
+and very many other classes of expressions are printed improperly. If we
+need support for a particular class, we have to add another ``_print_*``
+method to :class:`MathematicaPrinter``. For example, to make the above
+example work, we have to implement ``_print_Add``.
+
+Code generation
+---------------
+
+Besides printing of mathematical expressions, SymPy also implements Fortran
+and C code generation. The simplest way to proceed is to use :func:`codegen`
+which takes a tuple consisting of function name and an expression, or a list
+of tuples of this kind, language in which it will generate code (``C`` for
+C programming language and ``F95`` for Fortran, and file name::
+
+    >>> print codegen(("chebyshevt_20", chebyshevt(20, x)), "F95", "file")[0][1]
+    !******************************************************************************
+    !*                      Code generated with sympy 0.7.0                       *
+    !*                                                                            *
+    !*              See http://www.sympy.org/ for more information.               *
+    !*                                                                            *
+    !*                       This file is part of 'project'                       *
+    !******************************************************************************
+
+    REAL*8 function chebyshevt_20(x)
+    implicit none
+    REAL*8, intent(in) :: x
+
+    chebyshevt_20 = 524288*x**20 - 2621440*x**18 + 5570560*x**16 - 6553600*x &
+          **14 + 4659200*x**12 - 2050048*x**10 + 549120*x**8 - 84480*x**6 + &
+          6600*x**4 - 200*x**2 + 1
+
+    end function
+
+In this example we generated Fortran code for function ``chebyshevt_20`` which
+allows use to evaluate Chebyshev polynomial of first kind of degree 20. Almost
+the same way one can generate C code for this expression.
 
 Tasks
 -----
 
-1. Add support for :class:`Add` and :class:`Mul` to Mathematica printer.
+1. Make Mathematica printer correctly print `\pi`.
+2. Add support for :class:`Add` and :class:`Mul` to Mathematica printer. In
+   the case of products, allow both explicit and implied multiplication, and
+   allow users to choose desired behavior by parametrization of Mathematica
+   printer.
+3. Generate C code for ``chebyshevt(20, x)``.
+4. Make SymPy generate one file of Fortran or/and C code that contains
+   definitions of functions that would allow us to evaluate each of the
+   first ten Chebyshev polynomials of the first kind.
 
 =======================================
 Mathematical problem solving with SymPy
@@ -2176,13 +2565,13 @@ We had to specify the variables of the problem explicitly in
 :func:`groebner`, because otherwise it would treat `a` also as a
 variable, which we don't want. Now we can verify the theorem::
 
-    >>> reduced(perpendicular(A, C, B, D), G, vars, order='grlex')[1]
+    >>> reduced(perpendicular(A, C, B, D), G, *V, order='grlex')[1]
     0
 
 The remainder vanished, which proves that `AC \bot BD`. Although, the theorem
 we described and proved here is a simple one, one can handle much more advanced
 problems as well using |groebner| bases techniques. One should refer to Franz
-Winkler's papers for more interesting examples.
+Winkler's papers for more advanced examples.
 
 Tasks
 -----
