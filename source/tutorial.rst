@@ -2672,9 +2672,75 @@ SymPy, we recommend that you follow our `development workflow guide
 
 If you don't have git installed, you can download a `tarball
 <https://github.com/asmeurer/sympy/tarball/integration3>`_ of the latest
-version of Aaron's integration3 branch.
+version of Aaron's ``integration3`` branch.
 
 Playing with :func:`risch_integrate`
 ------------------------------------
 
-Once you have Aaron's integration3 development branch, start up ``isympy``.
+Once you have Aaron's ``integration3`` development branch, start up ``isympy``.
+
+In SymPy 0.7.0, :func:`integrate` implements a heuristic version of the
+Risch algorithm based on Bronstein's Poor Man's Integrator, along with
+some additional heuristics.  This heuristic is slow, and not nearly as
+powerful as the full Risch algorithm.  Its main advantage is that it's
+easy to implement.
+
+Because the implementation of full Risch algorithm is not complete, and
+to facilitate easy comparison between the old and new methods,
+:func:`integrate` remains the same in Aaron's ``integration3``
+development branch.  The full algorithm is accessed through the
+:func:`risch_integrate` function.  This function behaves a little
+different from :func:`integrate`.  When :func:`integrate` cannot produce
+an antiderivative, it returns an unevaluated :class:`Integral` object::
+
+    >>> integrate(1/log(x), x)
+    ⌠
+    ⎮   1
+    ⎮ ────── dx
+    ⎮ log(x)
+    ⌡
+    >>> integrate(log(x)/x, x)
+    ⌠
+    ⎮ log(x)
+    ⎮ ────── dx
+    ⎮   x
+    ⌡
+
+Because :func:`integrate` uses heuristic methods, there is no way to
+tell if the integration failed because no elementary integral exists or
+simply because the heuristic failed.  On the other hand,
+:func:`risch_integrate` implements the full Risch algorithm, which can
+prove when a nonelementary integral does not exist.  Therefore, when
+:func:`risch_integrate` returns an unevaluated :class:`Integral`, it
+means that it has proven that a nonelementary integral exists.  In the
+cases where a part of the algorithm is not implemented, or if the
+integrand is not a transcendental elementary function,
+:func:`risch_integrate` will raise ``NotImplementedError``::
+
+    >>> risch_integrate(1/log(x), x)
+    ⌠
+    ⎮   1
+    ⎮ ────── dx
+    ⎮ log(x)
+    ⌡
+    >>> risch_integrate(log(x)/x, x)
+       2
+    log (x)
+    ───────
+       2
+    >>> risch_integrate(sqrt(x), x) # Algebraic functions are not supported
+    Traceback (most recent call last):
+    ...
+    NotImplementedError: Couldn't find an elementary transcendental extension for x**(1/2).  Try using a manual extension with the extension flag.
+    >>> risch_integrate(diff(log(exp(x) + 1)*x, x), x)
+    Traceback (most recent call last):
+    ...
+    NotImplementedError: Remaining cases for Poly (P)RDE are not yet implemented (is_deriv_in_field() required).
+
+Notice that by returning an unevaluated :class:`Integral` for
+``risch_integrate(1/log(x), x)``, the algorithm has proven that this is
+not an elementary function.  Indeed, this is the special function known
+as the logarithmic integral, and is often denoted by `\mathrm{li}(x)`.
+
+Currently, only the cases for exponential and logarithmic integrals are
+implemented.  Support for trigonometric functions is planned.
