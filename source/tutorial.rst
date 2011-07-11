@@ -2622,8 +2622,8 @@ respectively), but these cannot be applied nearly as generally as the
 rules for differentiation.  Indeed, if we wish to have an algorithm that
 can compute elementary antiderivatives in full generality, we cannot
 even use the sum rule.  For example, `\int{ x^x\,dx}` and `\int{
-x^x\log{x}\,dx}` are both nonelementary functions, but the sum, `\int{
-\left(x^x + x^x\log{x}\right)\,dx}` *is* an elementary function, as it's
+x^x\log{(x)}\,dx}` are both nonelementary functions, but the sum, `\int{
+\left(x^x + x^x\log{(x)}\right)\,dx}` *is* an elementary function, as it's
 equal to `x^x`.
 
 Fortunately, there does exist a complete algorithm for computing
@@ -2636,9 +2636,9 @@ system to date have a truly complete implementation.  This is mainly due
 to the difficulty of the algebraic part of the algorithm.
 
 The transcendental part Risch algorithm deals with integrating
-transcendental functions, such as function containing `e^x`, `\log{x}`,
+transcendental functions, such as function containing `e^x`, `\log{(x)}`,
 and trigonometric functions.  It does not deal with algebraic functions,
-such as `\sqrt{x + 1}` and `\left( \log{x^2 + 1} \right)^{1/3}`.  The
+such as `\sqrt{x + 1}` and `\left( \log{\left(x^2 + 1\right)} \right)^{1/3}`.  The
 transcendental part of the algorithm, while still relatively
 complicated, is the easiest part of the algorithm to implement, and is
 described completely in Manuel Bronstein's book, *Symbolic Integration
@@ -2738,7 +2738,7 @@ integrand is not a transcendental elementary function,
     NotImplementedError: Remaining cases for Poly (P)RDE are not yet implemented (is_deriv_in_field() required).
 
 Notice that by returning an unevaluated :class:`Integral` for
-``risch_integrate(1/log(x), x)``, the algorithm has proven that this is
+``risch_integrate(1/log(x), x)``, the algorithm has proven that `\int{\frac{1}{\log{(x)}}\,dx}` is
 not an elementary function.  Indeed, this is the special function known
 as the logarithmic integral, and is often denoted by `\mathrm{li}(x)`.
 
