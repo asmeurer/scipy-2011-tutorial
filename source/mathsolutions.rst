@@ -524,7 +524,25 @@ Doctest Style
     >>> "...%s..." % pi_million_digits[pi999999:pi999999+10]
     ...9999998372...
 
-3.
+3. According to Gruntz's thesis, `n`, the number of digits of precision in
+   base 10 required to numerically evaluate the function at the point
+   `x`, must satisfy `n \log(10) \geq e^x + \log(x)`, otherwise the
+   floating point approximation of the difference of the error functions
+   will be 0.  In other words, the number of *digits* required grows
+   exponentially with `x` (!)  We can see that for very small (compared to
+   a numerical conception of `\infty`) values of `x`, the number of
+   digits is more than can be computed in a reasonable amount of time
+   (mpmath can compute with arbitrary precision, but it of course
+   requires a large amount of time and memory to compute a large
+   number)::
+
+    >>> [(x, int(((exp(x) + log(x))/log(10)).evalf())) for x in xrange(1, 15)]
+    [(1, 1), (2, 3), (3, 9), (4, 24), (5, 65), (6, 175), (7, 477), (8, 1295), (9, 3520), (10, 9566), (11, 26004), (12, 70684), (13, 192138), (14, 522285)]
+
+A little experimentation will reveal that around `x = 11` or so, the
+required value of `n` to pass to :func:`Expr.evalf` becomes too large to
+reasonably compute.  On the other hand, SymPy's :func:`limit` function
+can compute the limit symbolically exactly and very quickly.
 
 Script Style
 ------------
