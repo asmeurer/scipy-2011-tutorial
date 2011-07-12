@@ -1405,11 +1405,11 @@ functions::
         return (A2.x - A1.x)**2 + (A2.y - A1.y)**2
 
     def equal(A1, A2, B1, B2):
-        """Lines [A1, A2] and [B1, B2] are of the same width. """
+        """Line segments [A1, A2] and [B1, B2] are of the same width. """
         return distance(A1, A2) - distance(B1, B2)
 
     def perpendicular(A1, A2, B1, B2):
-        """Line [A1, A2] is perpendicular to line [B1, B2]. """
+        """Line segment [A1, A2] is perpendicular to line segment [B1, B2]. """
         return (A2.x - A1.x)*(B2.x - B1.x) + (A2.y - A1.y)*(B2.y - B1.y)
 
 The non--degeneracy statement requires a few words of comment. Many theorems
