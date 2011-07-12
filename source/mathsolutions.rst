@@ -524,17 +524,17 @@ Doctest Style
     >>> "...%s..." % pi_million_digits[pi999999:pi999999+10]
     ...9999998372...
 
-3. According to Gruntz's thesis, `n`, the number of digits of precision in
-   base 10 required to numerically evaluate the function at the point
-   `x`, must satisfy `n \log(10) \geq e^x + \log(x)`, otherwise the
-   floating point approximation of the difference of the error functions
-   will be 0.  In other words, the number of *digits* required grows
-   exponentially with `x` (!)  We can see that for very small (compared to
-   a numerical conception of `\infty`) values of `x`, the number of
-   digits is more than can be computed in a reasonable amount of time
-   (mpmath can compute with arbitrary precision, but it of course
-   requires a large amount of time and memory to compute a large
-   number)::
+3. According to Gruntz's thesis (pg. 7), `n`, the number of digits of
+   precision in base 10 required to numerically evaluate the function at
+   the point `x`, must satisfy `n \log(10) \geq e^x + \log(x)`,
+   otherwise the floating point approximation of the difference of the
+   error functions will be 0.  In other words, the number of *digits*
+   required grows exponentially with `x` (!)  We can see that for very
+   small (compared to a numerical conception of `\infty`) values of `x`,
+   the number of digits is more than can be computed in a reasonable
+   amount of time (mpmath can compute with arbitrary precision, but it
+   of course requires a large amount of time and memory to compute a
+   large number)::
 
     >>> [(x, int(((exp(x) + log(x))/log(10)).evalf())) for x in xrange(1, 15)]
     [(1, 1), (2, 3), (3, 9), (4, 24), (5, 65), (6, 175), (7, 477), (8, 1295), (9, 3520), (10, 9566), (11, 26004), (12, 70684), (13, 192138), (14, 522285)]
@@ -561,3 +561,194 @@ Doctest Style
     ─────
       ⎽⎽⎽
     ╲╱ π
+
+
+Summing Roots of Polynomials
+============================
+
+1.
+
+* `f = z^5 + z + a` and `g = \frac{1}{z + 1}`
+
+Script Style
+------------
+
+::
+
+    var('a')
+    f = z**5 + z + a
+    f
+    g = 1/(z + 1)
+    g
+    R = var('r:5')
+    G = together(sum( [ g.subs(z, r) for r in R] ))
+    G
+    V = viete(f, R, z)
+    for lhs, rhs in V:
+        pprint(Eq(lhs, rhs))
+
+    p = expand(numer(G))
+    q = expand(denom(G))
+    (P, Q), mapping = symmetrize((p, q), R, formal=True)
+    P
+    Q
+    for s, poly in mapping:
+        pprint(Eq(s, poly))
+
+    subslist = [ (s, c) for (s, _), (_, c) in zip(mapping, V) ]
+    subslist
+    P[0].subs(subslist)/Q[0].subs(subslist)
+    # Note, we must give a variable to RootSum, as f has more than one Symbol
+    cancel(P[0].subs(subslist)/Q[0].subs(subslist) - RootSum(f, Lambda(z, g), z)) == 0
+
+Doctest Style
+-------------
+
+::
+
+    >>> var('a')
+    a
+    >>> f = z**5 + z + a
+    >>> f
+         5
+    a + z  + z
+    >>> g = 1/(z + 1)
+    >>> g
+      1
+    ─────
+    z + 1
+    >>> R = var('r:5')
+    >>> G = together(sum( [ g.subs(z, r) for r in R] ))
+    >>> G
+    (r₀ + 1)⋅(r₁ + 1)⋅(r₂ + 1)⋅(r₃ + 1) + (r₀ + 1)⋅(r₁ + 1)⋅(r₂ + 1)⋅(r₄ + 1) + (r₀ + 1)⋅(r₁ + 1)⋅(r₃ + 1)⋅(r₄ + 1) + (r₀ + 1)⋅(r₂ + 1)⋅(r₃ + 1)⋅(r₄ + 1) + (r₁ + 1)⋅(r₂ + 1)⋅(r₃ + 1)⋅(r₄ + 1)
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                            (r₀ + 1)⋅(r₁ + 1)⋅(r₂ + 1)⋅(r₃ + 1)⋅(r₄ + 1)
+    >>> V = viete(f, R, z)
+    >>> for lhs, rhs in V:
+    ...     pprint(Eq(lhs, rhs))
+    ...
+    r₀ + r₁ + r₂ + r₃ + r₄ = 0
+    r₀⋅r₁ + r₀⋅r₂ + r₀⋅r₃ + r₀⋅r₄ + r₁⋅r₂ + r₁⋅r₃ + r₁⋅r₄ + r₂⋅r₃ + r₂⋅r₄ + r₃⋅r₄ = 0
+    r₀⋅r₁⋅r₂ + r₀⋅r₁⋅r₃ + r₀⋅r₁⋅r₄ + r₀⋅r₂⋅r₃ + r₀⋅r₂⋅r₄ + r₀⋅r₃⋅r₄ + r₁⋅r₂⋅r₃ + r₁⋅r₂⋅r₄ + r₁⋅r₃⋅r₄ + r₂⋅r₃⋅r₄ = 0
+    r₀⋅r₁⋅r₂⋅r₃ + r₀⋅r₁⋅r₂⋅r₄ + r₀⋅r₁⋅r₃⋅r₄ + r₀⋅r₂⋅r₃⋅r₄ + r₁⋅r₂⋅r₃⋅r₄ = 1
+    r₀⋅r₁⋅r₂⋅r₃⋅r₄ = -a
+    >>> p = expand(numer(G))
+    >>> q = expand(denom(G))
+    >>> (P, Q), mapping = symmetrize((p, q), R, formal=True)
+    >>> P
+    (4⋅s₁ + 3⋅s₂ + 2⋅s₃ + s₄ + 5, 0)
+    >>> Q
+    (s₁ + s₂ + s₃ + s₄ + s₅ + 1, 0)
+    >>> for s, poly in mapping:
+    ...     pprint(Eq(s, poly))
+    ...
+    s₁ = r₀ + r₁ + r₂ + r₃ + r₄
+    s₂ = r₀⋅r₁ + r₀⋅r₂ + r₀⋅r₃ + r₀⋅r₄ + r₁⋅r₂ + r₁⋅r₃ + r₁⋅r₄ + r₂⋅r₃ + r₂⋅r₄ + r₃⋅r₄
+    s₃ = r₀⋅r₁⋅r₂ + r₀⋅r₁⋅r₃ + r₀⋅r₁⋅r₄ + r₀⋅r₂⋅r₃ + r₀⋅r₂⋅r₄ + r₀⋅r₃⋅r₄ + r₁⋅r₂⋅r₃ + r₁⋅r₂⋅r₄ + r₁⋅r₃⋅r₄ + r₂⋅r₃⋅r₄
+    s₄ = r₀⋅r₁⋅r₂⋅r₃ + r₀⋅r₁⋅r₂⋅r₄ + r₀⋅r₁⋅r₃⋅r₄ + r₀⋅r₂⋅r₃⋅r₄ + r₁⋅r₂⋅r₃⋅r₄
+    s₅ = r₀⋅r₁⋅r₂⋅r₃⋅r₄
+    >>> subslist = [ (s, c) for (s, _), (_, c) in zip(mapping, V) ]
+    >>> subslist
+    [(s₁, 0), (s₂, 0), (s₃, 0), (s₄, 1), (s₅, -a)]
+    >>> P[0].subs(subslist)/Q[0].subs(subslist)
+      6
+    ──────
+    -a + 2
+    >>> # Note, we must give a variable to RootSum, as f has more than one Symbol
+    >>> cancel(P[0].subs(subslist)/Q[0].subs(subslist) - RootSum(f, Lambda(z, g), z)) == 0
+    True
+
+
+* `f = z^5 + z + a` and `g = \frac{1}{z + b}`
+
+Script Style
+------------
+
+::
+
+    var('a b')
+    f = z**5 + z + a
+    f
+    g = 1/(z + b)
+    g
+    R = var('r:5')
+    G = together(sum( [ g.subs(z, r) for r in R] ))
+    G
+    V = viete(f, R, z)
+    for lhs, rhs in V:
+        pprint(Eq(lhs, rhs))
+
+    p = expand(numer(G))
+    q = expand(denom(G))
+    (P, Q), mapping = symmetrize((p, q), R, formal=True)
+    P
+    Q
+    for s, poly in mapping:
+        pprint(Eq(s, poly))
+
+    subslist = [ (s, c) for (s, _), (_, c) in zip(mapping, V) ]
+    subslist
+    P[0].subs(subslist)/Q[0].subs(subslist)
+    # Note, we must give a variable to RootSum, as f has more than one Symbol
+    cancel(P[0].subs(subslist)/Q[0].subs(subslist) - RootSum(f, Lambda(z, g), z)) == 0
+
+Doctest Style
+-------------
+
+::
+
+    >>> var('a b')
+    (a, b)
+    >>> f = z**5 + z + a
+    >>> f
+         5
+    a + z  + z
+    >>> g = 1/(z + b)
+    >>> g
+      1
+    ─────
+    b + z
+    >>> R = var('r:5')
+    >>> G = together(sum( [ g.subs(z, r) for r in R] ))
+    >>> G
+    (b + r₀)⋅(b + r₁)⋅(b + r₂)⋅(b + r₃) + (b + r₀)⋅(b + r₁)⋅(b + r₂)⋅(b + r₄) + (b + r₀)⋅(b + r₁)⋅(b + r₃)⋅(b + r₄) + (b + r₀)⋅(b + r₂)⋅(b + r₃)⋅(b + r₄) + (b + r₁)⋅(b + r₂)⋅(b + r₃)⋅(b + r₄)
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                            (b + r₀)⋅(b + r₁)⋅(b + r₂)⋅(b + r₃)⋅(b + r₄)
+    >>> V = viete(f, R, z)
+    >>> for lhs, rhs in V:
+    ...     pprint(Eq(lhs, rhs))
+    ...
+    r₀ + r₁ + r₂ + r₃ + r₄ = 0
+    r₀⋅r₁ + r₀⋅r₂ + r₀⋅r₃ + r₀⋅r₄ + r₁⋅r₂ + r₁⋅r₃ + r₁⋅r₄ + r₂⋅r₃ + r₂⋅r₄ + r₃⋅r₄ = 0
+    r₀⋅r₁⋅r₂ + r₀⋅r₁⋅r₃ + r₀⋅r₁⋅r₄ + r₀⋅r₂⋅r₃ + r₀⋅r₂⋅r₄ + r₀⋅r₃⋅r₄ + r₁⋅r₂⋅r₃ + r₁⋅r₂⋅r₄ + r₁⋅r₃⋅r₄ + r₂⋅r₃⋅r₄ = 0
+    r₀⋅r₁⋅r₂⋅r₃ + r₀⋅r₁⋅r₂⋅r₄ + r₀⋅r₁⋅r₃⋅r₄ + r₀⋅r₂⋅r₃⋅r₄ + r₁⋅r₂⋅r₃⋅r₄ = 1
+    r₀⋅r₁⋅r₂⋅r₃⋅r₄ = -a
+    >>> p = expand(numer(G))
+    >>> q = expand(denom(G))
+    >>> (P, Q), mapping = symmetrize((p, q), R, formal=True)
+    >>> P
+    ⎛   4      3         2                    ⎞
+    ⎝5⋅b  + 4⋅b ⋅s₁ + 3⋅b ⋅s₂ + 2⋅b⋅s₃ + s₄, 0⎠
+    >>> Q
+    ⎛ 5    4       3       2                  ⎞
+    ⎝b  + b ⋅s₁ + b ⋅s₂ + b ⋅s₃ + b⋅s₄ + s₅, 0⎠
+    >>> for s, poly in mapping:
+    ...     pprint(Eq(s, poly))
+    ...
+    s₁ = r₀ + r₁ + r₂ + r₃ + r₄
+    s₂ = r₀⋅r₁ + r₀⋅r₂ + r₀⋅r₃ + r₀⋅r₄ + r₁⋅r₂ + r₁⋅r₃ + r₁⋅r₄ + r₂⋅r₃ + r₂⋅r₄ + r₃⋅r₄
+    s₃ = r₀⋅r₁⋅r₂ + r₀⋅r₁⋅r₃ + r₀⋅r₁⋅r₄ + r₀⋅r₂⋅r₃ + r₀⋅r₂⋅r₄ + r₀⋅r₃⋅r₄ + r₁⋅r₂⋅r₃ + r₁⋅r₂⋅r₄ + r₁⋅r₃⋅r₄ + r₂⋅r₃⋅r₄
+    s₄ = r₀⋅r₁⋅r₂⋅r₃ + r₀⋅r₁⋅r₂⋅r₄ + r₀⋅r₁⋅r₃⋅r₄ + r₀⋅r₂⋅r₃⋅r₄ + r₁⋅r₂⋅r₃⋅r₄
+    s₅ = r₀⋅r₁⋅r₂⋅r₃⋅r₄
+    >>> subslist = [ (s, c) for (s, _), (_, c) in zip(mapping, V) ]
+    >>> subslist
+    [(s₁, 0), (s₂, 0), (s₃, 0), (s₄, 1), (s₅, -a)]
+    >>> P[0].subs(subslist)/Q[0].subs(subslist)
+         4
+      5⋅b  + 1
+    ───────────
+          5
+    -a + b  + b
+    >>> # Note, we must give a variable to RootSum, as f has more than one Symbol
+    >>> cancel(P[0].subs(subslist)/Q[0].subs(subslist) - RootSum(f, Lambda(z, g), z)) == 0
+    True
