@@ -9,7 +9,7 @@ Partial fraction decomposition
 ==============================
 
 1.
-  * `\frac{3 x + 5}{(2 x + 1)^2}`::
+  * `\frac{3 x + 5}{(2 x + 1)^2}`
 
 Script style
 ------------
@@ -276,7 +276,7 @@ There is an issue open (`2558
 a way to fix this, but it has not yet been implemented.
 
 Deriving Trigonometric Identities
-================================
+====================================
 
 1.
 
@@ -429,7 +429,7 @@ Doctest Style
     True
 
 Not only Symbolics: Numerical Computing
-===================
+=======================================
 
 1.
 
@@ -538,8 +538,8 @@ Doctest Style
 
 ::
 
->>> limit((erf(x - exp(-exp(x))) - erf(x))*exp(exp(x))*exp(x**2), x, oo)
-  -2
-─────
-  ⎽⎽⎽
-╲╱ π
+    >>> limit((erf(x - exp(-exp(x))) - erf(x))*exp(exp(x))*exp(x**2), x, oo)
+      -2
+    ─────
+      ⎽⎽⎽
+    ╲╱ π
