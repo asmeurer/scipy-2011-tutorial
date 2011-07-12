@@ -274,3 +274,156 @@ coefficient to be the coefficient of 1.  From the docstring::
 There is an issue open (`2558
 <http://code.google.com/p/sympy/issues/detail?id=2558>`_) that suggests
 a way to fix this, but it has not yet been implemented.
+
+Deriving Trigonometric Identities
+================================
+
+1.
+
+Script Style
+------------
+
+::
+
+    var('a,b')
+    f = sin(a + b);f
+    g = f.series(a, 0, 10)
+    g
+    g = collect(g, [sin(b), cos(b)]).removeO()
+    g
+    sina = sin(a).series(a, 0, 10).removeO()
+    sina
+    h = g.subs(sina, sin(a))
+    h
+    cosa = cos(a).series(a, 0, 10).removeO()
+    cosa
+    h = h.subs(cosa, cos(a))
+    h
+    eq = Eq(f, h)
+    eq
+    eq.lhs.expand(trig=True) == eq.rhs
+
+Doctest Style
+-------------
+
+::
+
+    >>> var('a,b')
+    (a, b)
+    >>> f = sin(a + b);f
+    sin(a + b)
+    >>> g = f.series(a, 0, 10)
+    >>> g
+                         2           3           4           5           6           7           8           9
+                        a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)
+    sin(b) + a⋅cos(b) - ───────── - ───────── + ───────── + ───────── - ───────── - ───────── + ───────── + ───────── + O(a**10)
+                            2           6           24         120         720         5040       40320       362880
+    >>> g = collect(g, [sin(b), cos(b)]).removeO()
+    >>> g
+    ⎛   8      6    4    2    ⎞          ⎛   9       7      5    3    ⎞
+    ⎜  a      a    a    a     ⎟          ⎜  a       a      a    a     ⎟
+    ⎜───── - ─── + ── - ── + 1⎟⋅sin(b) + ⎜────── - ──── + ─── - ── + a⎟⋅cos(b)
+    ⎝40320   720   24   2     ⎠          ⎝362880   5040   120   6     ⎠
+    >>> sina = sin(a).series(a, 0, 10).removeO()
+    >>> sina
+       9       7      5    3
+      a       a      a    a
+    ────── - ──── + ─── - ── + a
+    362880   5040   120   6
+    >>> h = g.subs(sina, sin(a))
+    >>> h
+    ⎛   8      6    4    2    ⎞
+    ⎜  a      a    a    a     ⎟
+    ⎜───── - ─── + ── - ── + 1⎟⋅sin(b) + sin(a)⋅cos(b)
+    ⎝40320   720   24   2     ⎠
+    >>> cosa = cos(a).series(a, 0, 10).removeO()
+    >>> cosa
+       8      6    4    2
+      a      a    a    a
+    ───── - ─── + ── - ── + 1
+    40320   720   24   2
+    >>> h = h.subs(cosa, cos(a))
+    >>> h
+    sin(a)⋅cos(b) + sin(b)⋅cos(a)
+    >>> eq = Eq(f, h)
+    >>> eq
+    sin(a + b) = sin(a)⋅cos(b) + sin(b)⋅cos(a)
+    >>> eq.lhs.expand(trig=True) == eq.rhs
+    True
+
+2.
+
+Script Style
+------------
+
+::
+
+    var('a,b')
+    f = cos(a + b);f
+    g = f.series(a, 0, 10)
+    g
+    g = collect(g, [sin(b), cos(b)]).removeO()
+    g
+    sina = sin(a).series(a, 0, 10).removeO()
+    sina
+    # Note that subs will not work directly with sina, because -sina appears
+    # in g.  We get around it by substituting -sina.
+    h = g.subs(-sina, -sin(a))
+    h
+    cosa = cos(a).series(a, 0, 10).removeO()
+    cosa
+    h = h.subs(cosa, cos(a))
+    h
+    eq = Eq(f, h)
+    eq
+    eq.lhs.expand(trig=True) == eq.rhs
+
+Doctest Style
+-------------
+
+::
+
+    >>> var('a,b')
+    (a, b)
+    >>> f = cos(a + b);f
+    cos(a + b)
+    >>> g = f.series(a, 0, 10)
+    >>> g
+                         2           3           4           5           6           7           8           9
+                        a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)   a ⋅cos(b)   a ⋅sin(b)
+    cos(b) - a⋅sin(b) - ───────── + ───────── + ───────── - ───────── - ───────── + ───────── + ───────── - ───────── + O(a**10)
+                            2           6           24         120         720         5040       40320       362880
+    >>> g = collect(g, [sin(b), cos(b)]).removeO()
+    >>> g
+    ⎛   8      6    4    2    ⎞          ⎛     9       7      5    3    ⎞
+    ⎜  a      a    a    a     ⎟          ⎜    a       a      a    a     ⎟
+    ⎜───── - ─── + ── - ── + 1⎟⋅cos(b) + ⎜- ────── + ──── - ─── + ── - a⎟⋅sin(b)
+    ⎝40320   720   24   2     ⎠          ⎝  362880   5040   120   6     ⎠
+    >>> sina = sin(a).series(a, 0, 10).removeO()
+    >>> sina
+       9       7      5    3
+      a       a      a    a
+    ────── - ──── + ─── - ── + a
+    362880   5040   120   6
+    >>> # Note that subs will not work directly with sina, because -sina appears
+    >>> # in g.  We get around it by substituting -sina.
+    >>> h = g.subs(-sina, -sin(a))
+    >>> h
+    ⎛   8      6    4    2    ⎞
+    ⎜  a      a    a    a     ⎟
+    ⎜───── - ─── + ── - ── + 1⎟⋅cos(b) - sin(a)⋅sin(b)
+    ⎝40320   720   24   2     ⎠
+    >>> cosa = cos(a).series(a, 0, 10).removeO()
+    >>> cosa
+       8      6    4    2
+      a      a    a    a
+    ───── - ─── + ── - ── + 1
+    40320   720   24   2
+    >>> h = h.subs(cosa, cos(a))
+    >>> h
+    -sin(a)⋅sin(b) + cos(a)⋅cos(b)
+    >>> eq = Eq(f, h)
+    >>> eq
+    cos(a + b) = -sin(a)⋅sin(b) + cos(a)⋅cos(b)
+    >>> eq.lhs.expand(trig=True) == eq.rhs
+    True
