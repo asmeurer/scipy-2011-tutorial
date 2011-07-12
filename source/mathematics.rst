@@ -616,6 +616,13 @@ Tasks
    in this section. What are the drawbacks of computing this limit numerically?
    What is the limit, exactly?
 
+.. warning::
+
+    Don't do this last problem blindly!  The function contains double
+    exponentials.  You may want to try evaluating it for `x=1, 2, 3,
+    \ldots`.
+
+
 Summing roots of polynomials
 ============================
 
